@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книжки - Мировський О. А.</title>
+    <link rel="stylesheet" href="/src/scss/style.scss">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header__container">
+            
+            <a href="/" class="header__logo">
+                <img src="/src/img/logo.svg" alt="Мировський О. А.">
+            </a>
+
+            <div class="header__burger" id="burgerBtn">
+                <span></span>
+            </div>
+
+            <nav class="header__nav" id="navMenu">
+                <div class="header__close" id="closeBtn"></div>
+                <ul class="header__list">
+                    <li class="header__item">
+                        <a href="/index.html" class="header__link">Головна</a>
+                    </li>
+                    <li class="header__item">
+                        <a href="#" class="header__link">Новини</a>
+                    </li>
+                    <li class="header__item">
+                        <a href="./books.html" class="header__link active">Книжки</a>
+                    </li>
+                    <li class="header__item">
+                        <a href="#" class="header__btn-login">Вхід</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="books">
+            <div class="container">
+                <h2 class="books__title">Книжки</h2>
+                
+                <div class="books__grid">
+                    
+                    <div class="book-card">
+                        <div class="book-card__img-wrap">
+                            <img src="/src/img/book_1.png" alt="Основи правознавства">
+                        </div>
+                        <a href="#" class="book-card__btn">Основи правознавства</a>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-card__img-wrap">
+                            <img src="/src/img/book_2.png" alt="Історія України">
+                        </div>
+                        <a href="#" class="book-card__btn">Історія України: експрес-курс до ЗНО</a>
+                    </div>
+
+                    <div class="book-card">
+                        <div class="book-card__img-wrap">
+                            <img src="/src/img/book_3.png" alt="Музична література">
+                        </div>
+                        <a href="#" class="book-card__btn">Українська та зарубіжна музична література</a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <strong>Мировський О.А.</strong>
+                    <div class="social-icons">
+                        <span>📷</span> <span>📘</span> <span>▶️</span>
+                    </div>
+                </div>
+
+                <div>
+                    <p>Головна</p>
+                    <p>Блог</p>
+                    <p>Контакти</p>
+                </div>
+
+                <div>
+                    <p>Матеріали</p>
+                    <p>Курси</p>
+                    <p>Тести</p>
+                </div>
+
+                <div>
+                    <p>Політика</p>
+                    <p>Умови</p>
+                    <p>FAQ</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-login" id="loginModal">
+        <div class="modal-login__overlay" id="loginOverlay"></div>
+        <div class="modal-login__box">
+            <h3 class="modal-login__title">Вхід в обліковий запис</h3>
+            <form class="modal-login__form">
+                <input type="email" class="modal-login__input" placeholder="Пошта">
+                <input type="password" class="modal-login__input" placeholder="Пароль">
+                <p class="modal-login__text">Не маєте обліковий запис?</p>
+                <button type="button" class="modal-login__reg-btn">Реєстрація</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <script src="/src/js/main.js"></script>
+</body>
+</html>

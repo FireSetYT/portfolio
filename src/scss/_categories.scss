@@ -1,0 +1,28 @@
+.categories {
+    padding: 40px 0;
+
+    .grid-container {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 1fr;
+
+        @media (min-width: 600px) { grid-template-columns: 1fr 1fr; }
+        @media (min-width: 900px) { grid-template-columns: 1fr 1fr 1fr; }
+    }
+
+    .cat-card {
+        background-color: $bg-light;
+        color: $text-dark;
+        padding: 30px 20px;
+        border-radius: 15px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 14px;
+        display: flex; align-items: center; justify-content: center;
+        min-height: 60px;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+        &:hover { transform: translateY(-3px); }
+    }
+}

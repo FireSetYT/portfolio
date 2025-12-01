@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мировський Олексій Анатолійович</title>
+    <link rel="stylesheet" href="./src/scss/style.scss">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header__container">
+            
+           <a href="#" class="header__logo">
+    <img src="./src/img/logo.svg" alt="Логотип Мировський О.А.">
+</a>
+
+            <div class="header__burger" id="burgerBtn">
+                <span></span>
+            </div>
+
+            <nav class="header__nav" id="navMenu">
+                <div class="header__close" id="closeBtn"></div>
+
+                <ul class="header__list">
+                    <li class="header__item">
+                        <a href="./index.html" class="header__link">Головна</a>
+                    </li>
+                    <li class="header__item">
+                        <a href="#" class="header__link">Новини</a>
+                    </li>
+                    <li class="header__item">
+                        <a href="/pages/books.html" class="header__link">Книжки</a>
+                    </li>
+                    <li class="header__item">
+                        <a href="#" class="header__btn-login">Вхід</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="head">
+        <div class="container head__container">
+            <div class="head__text-1">
+                Мировський Олексій<br>Анатолійович
+            </div>
+            <div class="head__img-1">
+                <img src="./src/img/first.png" alt="Мировський Олексій">
+            </div>
+            <div class="head__text-2">
+                Креативний, комунікабельний,<br>
+                доктор філософії в галузі історії
+            </div>
+        </div>
+    </div>
+
+    <section class="categories container">
+        <div class="grid-container">
+            <a href="#" class="cat-card">Про автора</a>
+            <a href="#" class="cat-card">Новини</a>
+            <a href="#" class="cat-card">Інформація в ЗМІ</a>
+            <a href="#" class="cat-card">Українська та зарубіжна музична література</a>
+            <a href="#" class="cat-card">Історія України: експрес-курс до ЗНО</a>
+            <a href="#" class="cat-card">Основи правознавства</a>
+        </div>
+    </section>
+
+    <section class="about container">
+        <div class="about-inner">
+            <div class="about-content">
+                <h2>Про себе:</h2>
+                <p>
+                    Випускник історичного факультету ЛНУ ім. Івана Франка. 
+                    Як то кажуть, на собі відчув як це бути абітурієнтом, тому чудово їх розумію! 
+                    Знаходити особливий підхід до кожного, а не працювати за єдиною схемою із всіма! 
+                    Маю успішний досвід підготовки абітурієнтів з історії України. 
+                    Звертайтеся, залюбки відповім на ваші додаткові запитання!
+                </p>
+                <button class="btn-ask">Задати запитання</button>
+            </div>
+            <div class="about-image">
+                <img src="./src/img/second.png" alt="Навчання">
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <strong>Мировський О.А.</strong>
+                    <div class="social-icons">
+                        <span>📷</span> <span>📘</span> <span>▶️</span>
+                    </div>
+                </div>
+                <div><p>Головна</p> <p>Блог</p> <p>Контакти</p></div>
+                <div><p>Матеріали</p> <p>Курси</p> <p>Тести</p></div>
+                <div><p>Політика</p> <p>Умови</p> <p>FAQ</p></div>
+            </div>
+        </div>
+    </footer>
+
+   <div class="modal-login" id="loginModal">
+        <div class="modal-login__overlay" id="loginOverlay"></div>
+        <div class="modal-login__box">
+            <div class="modal-login__close">×</div>
+            
+            <h3 class="modal-login__title">Вхід в обліковий запис</h3>
+            <form class="modal-login__form">
+                <input type="email" class="modal-login__input" placeholder="Пошта">
+                <input type="password" class="modal-login__input" placeholder="Пароль">
+                <button type="submit" class="modal-login__submit-btn">Увійти</button>
+                <p class="modal-login__text">Не маєте обліковий запис?</p>
+                <button type="button" class="modal-login__reg-btn">Реєстрація</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-login" id="regModal">
+        <div class="modal-login__overlay" id="regOverlay"></div>
+        <div class="modal-login__box">
+            <div class="modal-login__close">×</div>
+
+            <h3 class="modal-login__title">Реєстрація</h3>
+            <form class="modal-login__form">
+                <input type="email" class="modal-login__input" placeholder="Пошта">
+                <input type="text" class="modal-login__input" placeholder="Ім'я">
+                <input type="password" class="modal-login__input" placeholder="Пароль">
+                <button type="button" class="modal-login__reg-btn">Зареєструватися</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="./src/js/main.js"></script>
+</body>
+</html>

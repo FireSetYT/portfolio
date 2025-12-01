@@ -1,0 +1,154 @@
+// scss/sections/_modal.scss
+
+.modal-login {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000; // Вище за хедер
+    display: none; // Приховано за замовчуванням
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 9999;
+
+    // Клас active додається через JS для показу вікна
+    &.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    // Затемнений фон
+    &__overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba($bg-dark, 0.8); // Темно-коричневий напівпрозорий
+        cursor: pointer;
+    }
+
+    // Саме біле/бежеве віконце
+    &__box {
+        position: relative;
+        background-color: $bg-light; // Бежевий фон
+        padding: 40px 30px;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 450px; // Обмеження ширини
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+
+        // Анімація спливання
+        .modal-login.active & {
+            transform: translateY(0);
+        }
+    }
+
+    &__title {
+        font-size: 24px;
+        color: #000;
+        margin-bottom: 30px;
+        font-weight: 700;
+    }
+
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; // Відстань між полями
+    }
+
+    // Хрестик закриття
+    &__close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 32px;
+        line-height: 1;
+        color: #000;
+        cursor: pointer;
+        transition: transform 0.2s ease, color 0.2s;
+        font-weight: 300;
+
+        &:hover {
+            transform: scale(1.1); // Трохи збільшується
+            color: #555;
+        }
+    }
+
+    // --- СТИЛІ ДЛЯ ПОЛІВ ВВОДУ (INPUT) ---
+    &__input {
+        background-color: $bg-dark; // Темно-коричневий фон
+        color: $text-light;         // Світлий текст
+        border: 2px solid transparent; 
+        padding: 15px 20px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        width: 100%;
+        box-sizing: border-box;
+        outline: none;
+        font-family: inherit;
+
+        // Колір тексту-підказки (Placeholder)
+        &::placeholder {
+            color: rgba($text-light, 0.6); // Напівпрозорий світлий
+        }
+
+        // При кліку на поле (фокус)
+        &:focus {
+            background-color: lighten($bg-dark, 5%); // Трохи світлішає
+            border-color: #000; // Чорна рамка
+        }
+    }
+
+    &__text {
+        margin: 20px 0 10px;
+        font-size: 14px;
+        color: #000;
+        font-weight: 500;
+    }
+
+    // --- КНОПКА РЕЄСТРАЦІЇ ---
+    &__reg-btn {
+        background-color: #000; // Чорний фон
+        color: $white;          // Білий текст
+        border: none;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: lighten(#000, 20%); // Світлішає при наведенні
+        }
+    }
+
+    // Кнопка "Увійти" (основна дія)
+    &__submit-btn {
+        background-color: #000;  // Чорний фон
+        color: $white;           // Білий текст
+        border: none;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;        // Відступ від пароля
+        transition: background-color 0.2s;
+
+        &:hover {
+            background-color: lighten(#000, 20%); // Трохи світліша при наведенні
+        }
+    }
+}
