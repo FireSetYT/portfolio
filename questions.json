@@ -1,0 +1,14 @@
+[
+  {
+    "name": "test",
+    "contact": "oleksander.rakhmanov@gmail.com",
+    "question": "тест",
+    "date": "02.12.2025, 20:58:07"
+  },
+  {
+    "name": "test",
+    "contact": "oleksander.rakhmanov@gmail.com",
+    "question": "test\n",
+    "date": "02.12.2025, 20:06:13"
+  }
+]

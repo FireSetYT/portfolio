@@ -2,139 +2,238 @@
 const API_URL = 'http://localhost:3000';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // =========================================================
+    // 1. ЗМІННІ ТА ЕЛЕМЕНТИ
+    // =========================================================
     
-    // --- ЕЛЕМЕНТИ ---
+    // Навігація
     const burger = document.getElementById('burgerBtn');
     const nav = document.getElementById('navMenu');
-    const closeBtn = document.getElementById('closeBtn');
+    const closeNavBtn = document.getElementById('closeBtn');
     
-    // Модалки
+    // Кнопки в шапці
+    const headerLoginBtn = document.getElementById('loginBtn');
+    const headerLogoutBtn = document.getElementById('logoutBtn');
+    const headerAdminBtn = document.getElementById('adminBtn');
+
+    // Модальні вікна
     const loginModal = document.getElementById('loginModal');
     const regModal = document.getElementById('regModal');
+    const askModal = document.getElementById('askModal');
+    const warningModal = document.getElementById('authWarningModal');
     
-    // Кнопки
-    const loginBtns = document.querySelectorAll('#loginBtn'); // Всі кнопки входу
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminBtn = document.getElementById('adminBtn');
+    // Кнопка на сторінці
+    const askBtn = document.getElementById('askBtn');
+
+    // =========================================================
+    // 2. ФУНКЦІЇ УПРАВЛІННЯ ІНТЕРФЕЙСОМ
+    // =========================================================
+
+    const openModal = (modal) => {
+        document.querySelectorAll('.modal-login').forEach(m => m.classList.remove('active'));
+        if(modal) modal.classList.add('active');
+    };
     
-    // --- ФУНКЦІЇ ---
+    const closeModal = () => {
+        document.querySelectorAll('.modal-login').forEach(m => m.classList.remove('active'));
+    };
 
-    // 1. АВТОРИЗАЦІЯ (Вхід)
-    const handleLogin = async () => {
-        const login = document.getElementById('loginInput').value;
-        const pass = document.getElementById('passInput').value;
+    const checkAuth = () => {
+        const role = localStorage.getItem('role');
+        const username = localStorage.getItem('username');
+        
+        if (role) {
+            // Якщо увійшли
+            if(headerLoginBtn) headerLoginBtn.style.display = 'none';
+            
+            // Показуємо кнопку Вихід
+            if(headerLogoutBtn) {
+                headerLogoutBtn.style.display = 'inline-block';
+                // Якщо адмін - пишемо Admin, якщо ні - нікнейм
+                const displayName = role === 'admin' ? 'Admin' : username;
+                headerLogoutBtn.innerText = `Вихід (${displayName})`; 
+            }
 
-        const res = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ login, password: pass })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-            localStorage.setItem('role', data.role);
-            location.reload();
+            if(role === 'admin' && headerAdminBtn) headerAdminBtn.style.display = 'inline-block';
         } else {
-            alert('Помилка входу!');
+            // Якщо гості
+            if(headerLoginBtn) headerLoginBtn.style.display = 'inline-block';
+            if(headerLogoutBtn) headerLogoutBtn.style.display = 'none';
+            if(headerAdminBtn) headerAdminBtn.style.display = 'none';
         }
     };
 
-    // 2. РЕЄСТРАЦІЯ (Нове!)
-    const handleRegister = async () => {
-        const email = document.getElementById('regEmail').value;
-        const login = document.getElementById('regLogin').value;
-        const pass = document.getElementById('regPass').value;
-
-        if(!login || !pass) return alert('Заповніть поля!');
-
-        const res = await fetch(`${API_URL}/register`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ login, password: pass, email })
-        });
-        const data = await res.json();
-
-        if (data.success) {
-            alert('Реєстрація успішна! Тепер увійдіть.');
-            document.getElementById('regModal').classList.remove('active');
-            document.getElementById('loginModal').classList.add('active'); // Відкриваємо вхід
-        } else {
-            alert(data.message);
-        }
-    };
-
-    // 3. НОВИНИ (Працює тільки якщо є блок #newsFeed)
+    // =========================================================
+    // 3. ЗАВАНТАЖЕННЯ НОВИН
+    // =========================================================
     const loadNews = async () => {
         const container = document.getElementById('newsFeed');
-        if (!container) return; // Якщо ми не на сторінці новин — виходимо
+        if (!container) return; 
 
         try {
             const res = await fetch(`${API_URL}/news`);
             const news = await res.json();
-            container.innerHTML = news.map(item => `
-                <div class="news-card" style="border:1px solid #ddd; padding:15px; margin-bottom:15px; border-radius:8px;">
-                    <h3>${item.title}</h3>
-                    <p>${item.content}</p>
-                    <small style="color:gray">${item.date}</small>
-                </div>
-            `).join('');
+            const role = localStorage.getItem('role');
+
+            if (news.length === 0) {
+                container.innerHTML = '<p style="color: #000;">Новин поки немає.</p>';
+                return;
+            }
+
+            container.innerHTML = news.map(item => {
+                // HTML Коментарів
+                const commentsHTML = (item.comments || []).map(c => `
+                    <div style="background: #f9f9f9; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 14px; color: #000;">
+                        <strong style="color: ${c.author === 'Адміністратор' ? '#e74c3c' : '#2980b9'};">
+                            ${c.author}
+                        </strong> 
+                        <span style="color:#000; font-size:12px;">(${c.date})</span><br>
+                        ${c.text}
+                    </div>
+                `).join('');
+
+                // HTML Поля вводу
+                let inputArea = '';
+                if (role) {
+                    inputArea = `
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <input type="text" id="input-${item.id}" placeholder="Ваш коментар..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button class="send-btn" data-id="${item.id}" style="padding: 8px 15px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">Send</button>
+                        </div>
+                    `;
+                } else {
+                    inputArea = `<p style="margin-top:15px; font-size:13px; color:#000;">🔒 <span class="login-trigger" style="color:blue; cursor:pointer; text-decoration:underline;">Увійдіть</span>, щоб коментувати.</p>`;
+                }
+
+                // Картинка
+                const imageHTML = item.image ? 
+                    `<img src="${item.image}" style="width: 100%; height: 350px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; display: block; background: #f0f0f0;">` 
+                    : '';
+
+                return `
+                    <div class="news-card" style="background:#fff; border:1px solid #eee; padding:20px; margin-bottom:20px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+                        ${imageHTML}
+                        <h2 style="margin-top:0; color: #000;">${item.title}</h2>
+                        <p style="color:#000; line-height:1.6;">${item.content}</p>
+                        <small style="color:#000;">📅 ${item.date}</small>
+                        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
+                        <h4 style="margin:0 0 10px; color: #000;">Коментарі:</h4>
+                        <div class="comments-list">${commentsHTML || '<i style="color:#000">Немає коментарів</i>'}</div>
+                        ${inputArea}
+                    </div>
+                `;
+            }).join('');
+
+            // Події для кнопок "Send"
+            document.querySelectorAll('.send-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const newsId = e.target.getAttribute('data-id');
+                    const input = document.getElementById(`input-${newsId}`);
+                    const text = input.value;
+                    
+                    // !!! ГОЛОВНА ЗМІНА ТУТ !!!
+                    const currentRole = localStorage.getItem('role');
+                    let author;
+
+                    if (currentRole === 'admin') {
+                        author = 'Адміністратор';
+                    } else {
+                        author = localStorage.getItem('username') || 'Користувач';
+                    }
+
+                    if (!text) return alert('Напишіть текст!');
+
+                    await fetch(`${API_URL}/news/comment`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ newsId, author, text })
+                    });
+                    loadNews();
+                });
+            });
+
+            document.querySelectorAll('.login-trigger').forEach(l => l.addEventListener('click', () => openModal(loginModal)));
+
         } catch (e) {
-            container.innerHTML = 'Помилка сервера...';
+            console.error(e);
+            container.innerHTML = '<p style="color:red">Помилка завантаження новин.</p>';
         }
     };
 
-    // 4. ПЕРЕВІРКА СТАТУСУ
-    const checkAuth = () => {
-        const role = localStorage.getItem('role');
-        if (role) {
-            loginBtns.forEach(b => b.style.display = 'none');
-            if (logoutBtn) logoutBtn.style.display = 'inline-block';
-            if (role === 'admin' && adminBtn) adminBtn.style.display = 'inline-block';
-        }
-    };
-
-    // --- ЗАПУСК ---
+    // =========================================================
+    // 4. ОБРОБНИКИ ПОДІЙ
+    // =========================================================
+    
     checkAuth();
     loadNews();
 
-    // --- ПОДІЇ (КЛІКИ) ---
-    
-    // Відкриття меню
-    if(burger) burger.addEventListener('click', () => nav.classList.add('active'));
-    if(closeBtn) closeBtn.addEventListener('click', () => nav.classList.remove('active'));
+    if(burger) burger.addEventListener('click', () => { nav.classList.add('active'); burger.classList.add('active'); });
+    if(closeNavBtn) closeNavBtn.addEventListener('click', () => { nav.classList.remove('active'); burger.classList.remove('active'); });
 
-    // Модалки
-    loginBtns.forEach(btn => btn.addEventListener('click', (e) => {
+    if(headerLoginBtn) headerLoginBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(loginModal); });
+    if(headerLogoutBtn) headerLogoutBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); location.reload(); });
+
+    if(askBtn) askBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        loginModal.classList.add('active');
-    }));
+        localStorage.getItem('role') ? openModal(askModal) : openModal(warningModal);
+    });
 
-    // Закриття модалок (клік по фону або хрестику)
-    document.querySelectorAll('.modal-login__overlay, .modal-login__close').forEach(el => {
-        el.addEventListener('click', () => {
-            loginModal.classList.remove('active');
-            regModal.classList.remove('active');
+    const handleForm = async (btnId, url, getData, successMsg, afterFn) => {
+        const btn = document.getElementById(btnId);
+        if(!btn) return;
+        btn.addEventListener('click', async () => {
+            const data = getData();
+            if(!data) return;
+            try {
+                const res = await fetch(`${API_URL}${url}`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
+                });
+                const json = await res.json();
+                if(json.success) {
+                    if(successMsg) alert(successMsg);
+                    if(afterFn) afterFn(json);
+                } else { alert(json.message || 'Помилка'); }
+            } catch(e) { alert('Сервер не відповідає'); }
         });
-    });
+    };
 
-    // Перехід Вхід -> Реєстрація
-    const toRegBtn = document.querySelector('.modal-login__reg-btn');
-    if(toRegBtn) toRegBtn.addEventListener('click', () => {
-        loginModal.classList.remove('active');
-        regModal.classList.add('active');
-    });
+    // Вхід
+    handleForm('submitLogin', '/login', 
+        () => ({ login: document.getElementById('loginInput').value, password: document.getElementById('passInput').value }),
+        null, 
+        (data) => { 
+            localStorage.setItem('role', data.role); 
+            localStorage.setItem('username', data.login); 
+            location.reload(); 
+        }
+    );
 
-    // Кнопки форм
-    const submitLogin = document.getElementById('submitLogin');
-    if(submitLogin) submitLogin.addEventListener('click', handleLogin);
+    // Реєстрація
+    handleForm('submitReg', '/register', 
+        () => { 
+            const l = document.getElementById('regLogin').value, p = document.getElementById('regPass').value, e = document.getElementById('regEmail').value; 
+            return l && p ? { login: l, password: p, email: e } : alert('Заповніть поля') && null; 
+        }, 
+        'Успішно! Увійдіть.', 
+        () => openModal(loginModal)
+    );
 
-    const submitReg = document.getElementById('submitReg'); // ID для кнопки реєстрації
-    if(submitReg) submitReg.addEventListener('click', handleRegister);
+    // Запитання
+    handleForm('submitAsk', '/ask', 
+        () => { 
+            const n = document.getElementById('askName').value, c = document.getElementById('askContact').value, q = document.getElementById('askText').value; 
+            return n && c && q ? { name: n, contact: c, question: q } : alert('Заповніть поля') && null; 
+        }, 
+        'Надіслано!', 
+        () => { document.getElementById('askText').value=''; closeModal(); }
+    );
 
-    // Вихід
-    if(logoutBtn) logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.clear();
-        location.reload();
-    });
+    document.querySelectorAll('.modal-login__close, .modal-login__overlay').forEach(el => el.addEventListener('click', closeModal));
+    const toReg = document.querySelector('.modal-login__reg-btn'); 
+    if(toReg && toReg.id !== 'submitReg') toReg.addEventListener('click', (e) => { e.preventDefault(); openModal(regModal); });
+    const toLogin = document.getElementById('goToLoginFromWarning'); 
+    if(toLogin) toLogin.addEventListener('click', () => openModal(loginModal));
+    const toRegFromWarning = document.getElementById('goToRegFromWarning'); 
+    if(toRegFromWarning) toRegFromWarning.addEventListener('click', () => openModal(regModal));
 });

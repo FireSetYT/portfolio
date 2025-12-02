@@ -83,7 +83,7 @@
                     Маю успішний досвід підготовки абітурієнтів з історії України. 
                     Звертайтеся, залюбки відповім на ваші додаткові запитання!
                 </p>
-                <button class="btn-ask">Задати запитання</button>
+                <button class="btn-ask" id="askBtn">Задати запитання</button>
             </div>
             <div class="about-image">
                 <img src="./src/img/second.png" alt="Навчання">
@@ -108,7 +108,7 @@
     </footer>
 
     <div class="modal-login" id="loginModal">
-        <div class="modal-login__overlay" id="loginOverlay"></div>
+        <div class="modal-login__overlay"></div>
         <div class="modal-login__box">
             <div class="modal-login__close">×</div>
             <h3 class="modal-login__title">Вхід в обліковий запис</h3>
@@ -123,7 +123,7 @@
     </div>
 
     <div class="modal-login" id="regModal">
-        <div class="modal-login__overlay" id="regOverlay"></div>
+        <div class="modal-login__overlay"></div>
         <div class="modal-login__box">
             <div class="modal-login__close">×</div>
             <h3 class="modal-login__title">Реєстрація</h3>
@@ -132,6 +132,34 @@
                 <input type="text" id="regLogin" class="modal-login__input" placeholder="Логін">
                 <input type="password" id="regPass" class="modal-login__input" placeholder="Пароль">
                 <button type="button" id="submitReg" class="modal-login__reg-btn">Зареєструватися</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-login" id="authWarningModal">
+        <div class="modal-login__overlay"></div>
+        <div class="modal-login__box" style="text-align: center;">
+            <div class="modal-login__close">×</div>
+            <h3 class="modal-login__title" style="color: #e74c3c;">Доступ обмежено</h3>
+            <p class="modal-login__text" style="font-size: 18px; margin: 20px 0;">
+                Вам потрібно пройти реєстрацію, щоб задати запитання.
+            </p>
+            <button id="goToRegFromWarning" class="modal-login__reg-btn">Зареєструватися</button>
+            <button id="goToLoginFromWarning" class="modal-login__submit-btn" style="margin-top: 10px;">Увійти</button>
+        </div>
+    </div>
+
+    <div class="modal-login" id="askModal">
+        <div class="modal-login__overlay"></div>
+        <div class="modal-login__box">
+            <div class="modal-login__close">×</div>
+            <h3 class="modal-login__title">Напишіть мені</h3>
+            <p class="modal-login__text">Залиште контакти, і я відповім вам.</p>
+            <form class="modal-login__form">
+                <input type="text" id="askName" class="modal-login__input" placeholder="Ваше ім'я">
+                <input type="text" id="askContact" class="modal-login__input" placeholder="Email або телефон">
+                <textarea id="askText" class="modal-login__input" rows="4" placeholder="Ваше запитання..." style="resize: none; height: auto;"></textarea>
+                <button type="button" id="submitAsk" class="modal-login__submit-btn">Надіслати</button>
             </form>
         </div>
     </div>
