@@ -1,0 +1,13 @@
+[
+  {
+    "login": "admin",
+    "pass": "123",
+    "role": "admin"
+  },
+  {
+    "login": "Orrxx_14",
+    "pass": "12345678",
+    "email": "oleksander.rakhmanov@gmail.com",
+    "role": "user"
+  }
+]

@@ -12,8 +12,8 @@
         <div class="container header__container">
             
            <a href="#" class="header__logo">
-    <img src="./src/img/logo.svg" alt="Логотип Мировський О.А.">
-</a>
+                <img src="./src/img/logo.svg" alt="Логотип Мировський О.А.">
+            </a>
 
             <div class="header__burger" id="burgerBtn">
                 <span></span>
@@ -24,16 +24,22 @@
 
                 <ul class="header__list">
                     <li class="header__item">
-                        <a href="./index.html" class="header__link">Головна</a>
+                        <a href="./index.html" class="header__link active">Головна</a>
                     </li>
                     <li class="header__item">
-                        <a href="#" class="header__link">Новини</a>
+                        <a href="news.html" class="header__link">Новини</a>
                     </li>
                     <li class="header__item">
                         <a href="/pages/books.html" class="header__link">Книжки</a>
                     </li>
+
                     <li class="header__item">
-                        <a href="#" class="header__btn-login">Вхід</a>
+                        <a href="admin.html" id="adminBtn" class="header__link" style="display: none; color: #e74c3c;">⚙️ Адмінка</a>
+                    </li>
+
+                    <li class="header__item">
+                        <a href="#" class="header__btn-login" id="loginBtn">Вхід</a>
+                        <a href="#" class="header__btn-login" id="logoutBtn" style="display: none;">Вихід</a>
                     </li>
                 </ul>
             </nav>
@@ -58,7 +64,7 @@
     <section class="categories container">
         <div class="grid-container">
             <a href="#" class="cat-card">Про автора</a>
-            <a href="#" class="cat-card">Новини</a>
+            <a href="news.html" class="cat-card">Новини</a>
             <a href="#" class="cat-card">Інформація в ЗМІ</a>
             <a href="#" class="cat-card">Українська та зарубіжна музична література</a>
             <a href="#" class="cat-card">Історія України: експрес-курс до ЗНО</a>
@@ -101,16 +107,15 @@
         </div>
     </footer>
 
-   <div class="modal-login" id="loginModal">
+    <div class="modal-login" id="loginModal">
         <div class="modal-login__overlay" id="loginOverlay"></div>
         <div class="modal-login__box">
             <div class="modal-login__close">×</div>
-            
             <h3 class="modal-login__title">Вхід в обліковий запис</h3>
             <form class="modal-login__form">
-                <input type="email" class="modal-login__input" placeholder="Пошта">
-                <input type="password" class="modal-login__input" placeholder="Пароль">
-                <button type="submit" class="modal-login__submit-btn">Увійти</button>
+                <input type="text" id="loginInput" class="modal-login__input" placeholder="Логін (admin)">
+                <input type="password" id="passInput" class="modal-login__input" placeholder="Пароль (123)">
+                <button type="button" id="submitLogin" class="modal-login__submit-btn">Увійти</button>
                 <p class="modal-login__text">Не маєте обліковий запис?</p>
                 <button type="button" class="modal-login__reg-btn">Реєстрація</button>
             </form>
@@ -121,17 +126,16 @@
         <div class="modal-login__overlay" id="regOverlay"></div>
         <div class="modal-login__box">
             <div class="modal-login__close">×</div>
-
             <h3 class="modal-login__title">Реєстрація</h3>
             <form class="modal-login__form">
-                <input type="email" class="modal-login__input" placeholder="Пошта">
-                <input type="text" class="modal-login__input" placeholder="Ім'я">
-                <input type="password" class="modal-login__input" placeholder="Пароль">
-                <button type="button" class="modal-login__reg-btn">Зареєструватися</button>
+                <input type="email" id="regEmail" class="modal-login__input" placeholder="Пошта">
+                <input type="text" id="regLogin" class="modal-login__input" placeholder="Логін">
+                <input type="password" id="regPass" class="modal-login__input" placeholder="Пароль">
+                <button type="button" id="submitReg" class="modal-login__reg-btn">Зареєструватися</button>
             </form>
         </div>
     </div>
 
-    <script src="./src/js/main.js"></script>
+    <script type="module" src="./src/js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новини - Мировський О.А.</title>
+    <link rel="stylesheet" href="./src/scss/style.scss">
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header__container">
+            <a href="index.html" class="header__logo">
+                <img src="./src/img/logo.svg" alt="Логотип">
+            </a>
+            <div class="header__burger" id="burgerBtn"><span></span></div>
+            <nav class="header__nav" id="navMenu">
+                <div class="header__close" id="closeBtn"></div>
+                <ul class="header__list">
+                    <li class="header__item"><a href="index.html" class="header__link">Головна</a></li>
+                    <li class="header__item"><a href="news.html" class="header__link active" style="font-weight: bold;">Новини</a></li>
+                    <li class="header__item"><a href="/pages/books.html" class="header__link">Книжки</a></li>
+                    <li class="header__item"><a href="admin.html" id="adminBtn" class="header__link" style="display: none; color: #e74c3c;">⚙️ Адмінка</a></li>
+                    <li class="header__item">
+                        <a href="#" class="header__btn-login" id="loginBtn">Вхід</a>
+                        <a href="#" class="header__btn-login" id="logoutBtn" style="display: none;">Вихід</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="container" style="margin-top: 50px; min-height: 60vh;">
+        <h1>Всі новини</h1>
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+        
+        <div id="newsFeed" class="grid-container" style="display: block;">
+            <p>Завантаження новин...</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <strong>Мировський О.А.</strong>
+                    <div class="social-icons">
+                        <span>📷</span> <span>📘</span> <span>▶️</span>
+                    </div>
+                </div>
+                <div><p>Головна</p> <p>Блог</p> <p>Контакти</p></div>
+                <div><p>Матеріали</p> <p>Курси</p> <p>Тести</p></div>
+                <div><p>Політика</p> <p>Умови</p> <p>FAQ</p></div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="modal-login" id="loginModal">
+        <div class="modal-login__overlay"></div>
+        <div class="modal-login__box">
+            <div class="modal-login__close">×</div>
+            <h3 class="modal-login__title">Вхід</h3>
+            <form class="modal-login__form">
+                <input type="text" id="loginInput" class="modal-login__input" placeholder="Логін">
+                <input type="password" id="passInput" class="modal-login__input" placeholder="Пароль">
+                <button type="button" id="submitLogin" class="modal-login__submit-btn">Увійти</button>
+                <button type="button" class="modal-login__reg-btn">Реєстрація</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="modal-login" id="regModal">
+        <div class="modal-login__overlay"></div>
+        <div class="modal-login__box">
+            <div class="modal-login__close">×</div>
+            <h3 class="modal-login__title">Реєстрація</h3>
+            <form class="modal-login__form">
+                <input type="email" id="regEmail" class="modal-login__input" placeholder="Пошта">
+                <input type="text" id="regLogin" class="modal-login__input" placeholder="Логін">
+                <input type="password" id="regPass" class="modal-login__input" placeholder="Пароль">
+                <button type="button" id="submitReg" class="modal-login__reg-btn">Зареєструватися</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="./src/js/main.js"></script>
+</body>
+</html>

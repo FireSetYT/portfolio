@@ -11,7 +11,7 @@
     <header class="header">
         <div class="container header__container">
             
-            <a href="/" class="header__logo">
+            <a href="index.html" class="header__logo">
                 <img src="/src/img/logo.svg" alt="Мировський О. А.">
             </a>
 
@@ -26,13 +26,19 @@
                         <a href="/index.html" class="header__link">Головна</a>
                     </li>
                     <li class="header__item">
-                        <a href="#" class="header__link">Новини</a>
+                        <a href="/news.html" class="header__link">Новини</a>
                     </li>
                     <li class="header__item">
                         <a href="./books.html" class="header__link active">Книжки</a>
                     </li>
+
                     <li class="header__item">
-                        <a href="#" class="header__btn-login">Вхід</a>
+                        <a href="/admin.html" id="adminBtn" class="header__link" style="display: none; color: #e74c3c;">⚙️ Адмінка</a>
+                    </li>
+
+                    <li class="header__item">
+                        <a href="#" class="header__btn-login" id="loginBtn">Вхід</a>
+                        <a href="#" class="header__btn-login" id="logoutBtn" style="display: none;">Вихід</a>
                     </li>
                 </ul>
             </nav>
@@ -81,42 +87,44 @@
                         <span>📷</span> <span>📘</span> <span>▶️</span>
                     </div>
                 </div>
-
-                <div>
-                    <p>Головна</p>
-                    <p>Блог</p>
-                    <p>Контакти</p>
-                </div>
-
-                <div>
-                    <p>Матеріали</p>
-                    <p>Курси</p>
-                    <p>Тести</p>
-                </div>
-
-                <div>
-                    <p>Політика</p>
-                    <p>Умови</p>
-                    <p>FAQ</p>
-                </div>
+                <div><p>Головна</p> <p>Блог</p> <p>Контакти</p></div>
+                <div><p>Матеріали</p> <p>Курси</p> <p>Тести</p></div>
+                <div><p>Політика</p> <p>Умови</p> <p>FAQ</p></div>
             </div>
         </div>
     </footer>
-
     <div class="modal-login" id="loginModal">
         <div class="modal-login__overlay" id="loginOverlay"></div>
         <div class="modal-login__box">
+            <div class="modal-login__close">×</div>
+            
             <h3 class="modal-login__title">Вхід в обліковий запис</h3>
             <form class="modal-login__form">
-                <input type="email" class="modal-login__input" placeholder="Пошта">
-                <input type="password" class="modal-login__input" placeholder="Пароль">
+                <input type="text" id="loginInput" class="modal-login__input" placeholder="Логін">
+                <input type="password" id="passInput" class="modal-login__input" placeholder="Пароль">
+                <button type="button" id="submitLogin" class="modal-login__submit-btn">Увійти</button>
+                
                 <p class="modal-login__text">Не маєте обліковий запис?</p>
                 <button type="button" class="modal-login__reg-btn">Реєстрація</button>
             </form>
         </div>
     </div>
-</div>
 
-    <script src="/src/js/main.js"></script>
+    <div class="modal-login" id="regModal">
+        <div class="modal-login__overlay" id="regOverlay"></div>
+        <div class="modal-login__box">
+            <div class="modal-login__close">×</div>
+
+            <h3 class="modal-login__title">Реєстрація</h3>
+            <form class="modal-login__form">
+                <input type="email" id="regEmail" class="modal-login__input" placeholder="Пошта">
+                <input type="text" id="regLogin" class="modal-login__input" placeholder="Логін">
+                <input type="password" id="regPass" class="modal-login__input" placeholder="Пароль">
+                <button type="button" id="submitReg" class="modal-login__reg-btn">Зареєструватися</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="/src/js/main.js"></script>
 </body>
 </html>

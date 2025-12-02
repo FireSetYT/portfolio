@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін Панель</title>
+    <link rel="stylesheet" href="./src/scss/style.scss">
+    
+    <script>
+        const role = localStorage.getItem('role');
+        // Якщо роль не 'admin', викидаємо користувача на головну
+        if (role !== 'admin') {
+            alert('У вас немає доступу до цієї сторінки!');
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container header__container">
+            <a href="index.html" class="header__logo">
+                <img src="./src/img/logo.svg" alt="Логотип">
+            </a>
+            
+            <div class="header__burger" id="burgerBtn"><span></span></div>
+
+            <nav class="header__nav" id="navMenu">
+                <div class="header__close" id="closeBtn"></div>
+                <ul class="header__list">
+                    <li class="header__item"><a href="index.html" class="header__link">Головна</a></li>
+                    <li class="header__item"><a href="news.html" class="header__link">Новини</a></li>
+                    <li class="header__item"><a href="/pages/books.html" class="header__link">Книжки</a></li>
+                    <li class="header__item"><a href="admin.html" id="adminBtn" class="header__link" style="color: #e74c3c; font-weight: bold;">⚙️ Адмінка</a></li>
+                    <li class="header__item">
+                        <a href="#" class="header__btn-login" id="logoutBtn">Вихід</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="container" style="margin-top: 50px; min-height: 60vh;">
+        <h1>Додати новину</h1>
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
+
+        <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Заголовок новини:</label>
+            <input type="text" id="newsTitle" class="modal-login__input" placeholder="Введіть заголовок..." style="margin-bottom: 20px;">
+
+            <label style="font-weight: bold; display: block; margin-bottom: 5px;">Текст новини:</label>
+            <textarea id="newsContent" class="modal-login__input" rows="8" placeholder="Введіть текст..." style="height: auto; padding: 10px; resize: vertical; margin-bottom: 20px; font-family: inherit;"></textarea>
+
+            <button id="publishBtn" class="modal-login__submit-btn" style="background: #27ae60;">Опублікувати новину</button>
+        </div>
+    </section>
+
+   <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <strong>Мировський О.А.</strong>
+                    <div class="social-icons">
+                        <span>📷</span> <span>📘</span> <span>▶️</span>
+                    </div>
+                </div>
+                <div><p>Головна</p> <p>Блог</p> <p>Контакти</p></div>
+                <div><p>Матеріали</p> <p>Курси</p> <p>Тести</p></div>
+                <div><p>Політика</p> <p>Умови</p> <p>FAQ</p></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+
+        document.getElementById('publishBtn').addEventListener('click', async () => {
+            const title = document.getElementById('newsTitle').value;
+            const content = document.getElementById('newsContent').value;
+
+            if (!title || !content) {
+                alert('Будь ласка, заповніть заголовок і текст!');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/news`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert('Новину успішно опубліковано!');
+                    // Очищаємо поля
+                    document.getElementById('newsTitle').value = '';
+                    document.getElementById('newsContent').value = '';
+                    // Перенаправляємо на сторінку новин, щоб побачити результат
+                    window.location.href = 'news.html';
+                } else {
+                    alert('Помилка при публікації.');
+                }
+            } catch (e) {
+                alert('Помилка з\'єднання з сервером. Перевірте node server.js');
+                console.error(e);
+            }
+        });
+        
+        // Кнопка виходу (продубльована тут для надійності)
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+             e.preventDefault();
+             localStorage.clear();
+             window.location.href = 'index.html';
+        });
+    </script>
+
+    <script type="module" src="./src/js/main.js"></script>
+</body>
+</html>
