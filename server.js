@@ -6,7 +6,7 @@ import fs from 'fs';
 const app = express();
 app.use(cors());
 
-// !!! ЗБІЛЬШЕНО ЛІМІТ ДО 10МБ ДЛЯ ЗАВАНТАЖЕННЯ ФОТО !!!
+// ЗБІЛЬШЕНО ЛІМІТ ДО 10МБ (Щоб фото вантажились)
 app.use(express.json({ limit: '10mb' }));
 
 const USERS_FILE = './users.json';
@@ -26,24 +26,22 @@ if (!fs.existsSync(QUESTIONS_FILE)) {
 
 // --- API ---
 
-// 1. ОТРИМАННЯ НОВИН
+// 1. НОВИНИ
 app.get('/news', (req, res) => {
     const news = JSON.parse(fs.readFileSync(NEWS_FILE));
-    // Захист: додаємо пустий масив коментарів, якщо його немає
     const safeNews = news.map(n => ({ ...n, comments: n.comments || [] }));
     res.json(safeNews);
 });
 
-// 2. ДОДАВАННЯ НОВИНИ (З ФОТО)
 app.post('/news', (req, res) => {
     const { title, content, image } = req.body;
     const news = JSON.parse(fs.readFileSync(NEWS_FILE));
     
     news.unshift({ 
-        id: Date.now().toString(), // Унікальний ID
+        id: Date.now().toString(),
         title, 
         content, 
-        image: image || null, // Зберігаємо Base64 картинку або null
+        image: image || null, 
         date: new Date().toLocaleDateString(),
         comments: [] 
     });
@@ -52,23 +50,15 @@ app.post('/news', (req, res) => {
     res.json({ success: true });
 });
 
-// 3. ДОДАВАННЯ КОМЕНТАРЯ
+// 2. КОМЕНТАРІ
 app.post('/news/comment', (req, res) => {
     const { newsId, author, text } = req.body;
     const news = JSON.parse(fs.readFileSync(NEWS_FILE));
-
-    // Шукаємо новину за ID (як рядок)
     const postIndex = news.findIndex(n => String(n.id) === String(newsId));
 
     if (postIndex !== -1) {
         if (!news[postIndex].comments) news[postIndex].comments = [];
-        
-        news[postIndex].comments.push({
-            author,
-            text,
-            date: new Date().toLocaleString()
-        });
-
+        news[postIndex].comments.push({ author, text, date: new Date().toLocaleString() });
         fs.writeFileSync(NEWS_FILE, JSON.stringify(news, null, 2));
         res.json({ success: true });
     } else {
@@ -76,13 +66,11 @@ app.post('/news/comment', (req, res) => {
     }
 });
 
-// 4. ЗАПИТАННЯ (Ask)
+// 3. ЗАПИТАННЯ
 app.post('/ask', (req, res) => {
     const { name, contact, question } = req.body;
     const questions = JSON.parse(fs.readFileSync(QUESTIONS_FILE));
-    
     questions.unshift({ name, contact, question, date: new Date().toLocaleString() });
-    
     fs.writeFileSync(QUESTIONS_FILE, JSON.stringify(questions, null, 2));
     res.json({ success: true });
 });
@@ -92,14 +80,11 @@ app.get('/questions', (req, res) => {
     res.json(questions);
 });
 
-// 5. АВТОРИЗАЦІЯ
+// 4. АВТОРИЗАЦІЯ
 app.post('/register', (req, res) => {
     const { login, password, email } = req.body;
     const users = JSON.parse(fs.readFileSync(USERS_FILE));
-    
-    if (users.find(u => u.login === login)) {
-        return res.json({ success: false, message: "Користувач вже існує" });
-    }
+    if (users.find(u => u.login === login)) return res.json({ success: false, message: "Користувач існує" });
     
     users.push({ login, pass: password, email, role: 'user' });
     fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
@@ -118,4 +103,5 @@ app.post('/login', (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('Сервер працює: http://localhost:3000'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Сервер працює на порту ${PORT}`));

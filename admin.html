@@ -43,7 +43,7 @@
             <label style="font-weight:bold; display:block; margin-bottom:5px;">Текст:</label>
             <textarea id="newsContent" class="modal-login__input" rows="5" placeholder="Текст"></textarea>
             
-            <label style="font-weight:bold; display:block; margin-bottom:5px;">Фото (необов'язково):</label>
+            <label style="font-weight:bold; display:block; margin-bottom:5px;">Фото:</label>
             <input type="file" id="newsImage" accept="image/*" style="margin-bottom: 20px;">
             
             <button id="publishBtn" class="modal-login__submit-btn" style="background: #27ae60;">Опублікувати</button>
@@ -65,7 +65,6 @@
     <script>
         const API_URL = 'http://localhost:3000';
 
-        // Конвертація фото в Base64
         const toBase64 = file => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -78,7 +77,7 @@
             const content = document.getElementById('newsContent').value;
             const fileInput = document.getElementById('newsImage');
             
-            if (!title || !content) return alert('Заповніть заголовок і текст!');
+            if (!title || !content) return alert('Заповніть поля!');
 
             let imageBase64 = null;
             if (fileInput.files.length > 0) {
@@ -94,7 +93,7 @@
                 alert('Новину додано!'); 
                 window.location.href = 'news.html';
             } catch (e) {
-                alert('Помилка сервера. Можливо, фото занадто велике.');
+                alert('Помилка сервера (можливо фото завелике).');
             }
         });
 
