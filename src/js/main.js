@@ -1,5 +1,8 @@
-/* Файл: src/js/main.js */
-const API_URL = 'http://localhost:3000';
+/* Файл: src/js/main.js - Адаптовано для Netlify Functions та MongoDB */
+
+// ЗМІНА 1: Використовуємо відносний шлях. 
+// У Netlify, '/api' буде перенаправлено на функцію 'server'.
+const API_BASE = '/api'; 
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -51,7 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container) return;
 
         try {
-            const res = await fetch(`${API_URL}/news`);
+            // ЗМІНА 2: Додаємо префікс /api
+            const res = await fetch(`${API_BASE}/news`); 
             const news = await res.json();
             const role = localStorage.getItem('role');
 
@@ -61,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             container.innerHTML = news.map(item => {
+                // ЗМІНА 3: Використовуємо item._id замість item.id
+                const itemId = item._id; 
+
                 // Коментарі (Чорний текст + логіка кольору автора)
                 const commentsHTML = (item.comments || []).map(c => `
                     <div style="background: #f9f9f9; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 14px; color: #000;">
@@ -77,8 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (role) {
                     inputArea = `
                         <div style="margin-top: 15px; display: flex; gap: 10px;">
-                            <input type="text" id="input-${item.id}" placeholder="Ваш коментар..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            <button class="send-btn" data-id="${item.id}" style="padding: 8px 15px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">Send</button>
+                            <input type="text" id="input-${itemId}" placeholder="Ваш коментар..." style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <button class="send-btn" data-id="${itemId}" style="padding: 8px 15px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer;">Send</button>
                         </div>
                     `;
                 } else {
@@ -107,21 +114,32 @@ document.addEventListener('DOMContentLoaded', () => {
             // Кнопка "Send"
             document.querySelectorAll('.send-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
-                    const newsId = e.target.getAttribute('data-id');
+                    // ЗМІНА 4: Використовуємо data-id, який тепер є MongoDB _id
+                    const newsId = e.target.getAttribute('data-id'); 
                     const input = document.getElementById(`input-${newsId}`);
                     const text = input.value;
                     
                     // Визначаємо автора: Адмін або Нікнейм
                     const currentRole = localStorage.getItem('role');
+                    // Використовуємо localStorage.getItem('username') для автора
                     let author = currentRole === 'admin' ? 'Адміністратор' : (localStorage.getItem('username') || 'Користувач');
 
                     if (!text) return alert('Напишіть текст!');
 
-                    await fetch(`${API_URL}/news/comment`, {
+                    // ЗМІНА 5: Додаємо префікс /api
+                    const res = await fetch(`${API_BASE}/news/comment`, { 
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({ newsId, author, text })
                     });
+                    
+                    const json = await res.json();
+                    if(json.success) {
+                       input.value = ''; // Очищаємо поле
+                    } else {
+                       alert(json.message || 'Помилка додавання коментаря.');
+                    }
+                    
                     loadNews();
                 });
             });
@@ -142,8 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(closeNavBtn) closeNavBtn.addEventListener('click', () => { nav.classList.remove('active'); burger.classList.remove('active'); });
     if(headerLoginBtn) headerLoginBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(loginModal); });
     if(headerLogoutBtn) headerLogoutBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); location.reload(); });
-    if(askBtn) askBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.getItem('role') ? openModal(askModal) : openModal(warningModal); });
+    // Припустимо, askBtn - це кнопка "Задати питання"
+    if(askBtn) askBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.getItem('role') ? openModal(askModal) : openModal(warningModal); }); 
 
+
+    // --- УНІВЕРСАЛЬНИЙ ОБРОБНИК ФОРМ ---
     const handleForm = async (btnId, url, getData, successMsg, afterFn) => {
         const btn = document.getElementById(btnId);
         if(!btn) return;
@@ -151,14 +172,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = getData();
             if(!data) return;
             try {
-                const res = await fetch(`${API_URL}${url}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
+                // ЗМІНА 6: Додаємо префікс /api до URL
+                const res = await fetch(`${API_BASE}${url}`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) }); 
                 const json = await res.json();
                 if(json.success) { if(successMsg) alert(successMsg); if(afterFn) afterFn(json); } 
                 else { alert(json.message || 'Помилка'); }
-            } catch(e) { alert('Сервер не відповідає'); }
+            } catch(e) { alert('Сервер не відповідає. Перевірте Netlify Functions Logs.'); } // Більш інформативне повідомлення
         });
     };
 
+    // ВХІД
     handleForm('submitLogin', '/login', 
         () => ({ login: document.getElementById('loginInput').value, password: document.getElementById('passInput').value }),
         null, 
@@ -169,20 +192,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     );
 
+    // РЕЄСТРАЦІЯ
     handleForm('submitReg', '/register', 
         () => { 
             const l = document.getElementById('regLogin').value, p = document.getElementById('regPass').value, e = document.getElementById('regEmail').value; 
             return l && p ? { login: l, password: p, email: e } : alert('Заповніть поля') && null; 
-        }, 'Успішно! Увійдіть.', () => openModal(loginModal)
+        }, 'Успішно! Тепер увійдіть.', () => openModal(loginModal)
     );
 
+    // НАДІСЛАННЯ ЗАПИТАННЯ
     handleForm('submitAsk', '/ask', 
         () => { 
             const n = document.getElementById('askName').value, c = document.getElementById('askContact').value, q = document.getElementById('askText').value; 
             return n && c && q ? { name: n, contact: c, question: q } : alert('Заповніть поля') && null; 
-        }, 'Надіслано!', () => { document.getElementById('askText').value=''; closeModal(); }
+        }, 'Запитання надіслано!', () => { document.getElementById('askText').value=''; closeModal(); }
     );
 
+    // --- КНОПКИ МОДАЛЬНИХ ВІКОН ---
     document.querySelectorAll('.modal-login__close, .modal-login__overlay').forEach(el => el.addEventListener('click', closeModal));
     const toReg = document.querySelector('.modal-login__reg-btn'); if(toReg && toReg.id !== 'submitReg') toReg.addEventListener('click', (e) => { e.preventDefault(); openModal(regModal); });
     const toLogin = document.getElementById('goToLoginFromWarning'); if(toLogin) toLogin.addEventListener('click', () => openModal(loginModal));
