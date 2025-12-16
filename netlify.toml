@@ -1,16 +1,26 @@
+# =======================================================
+# netlify.toml - КОНФІГУРАЦІЯ ДЛЯ NETLIFY FUNCTIONS
+# =======================================================
+
+# 1. Налаштування збірки
 [build]
-  # Каталог, де лежать ваші статичні файли (HTML, CSS, JS)
-  publish = "public" 
-  # Команда збірки (якщо у вас React/Vue/тощо)
-  command = "npm run build" 
+  # Папка, яку Netlify має обслуговувати (фронтенд)
+  publish = "public"
+  # Команда збірки (згенерувати CSS та встановити залежності)
+  command = "npm install && npm run sass:build" 
+  # Або просто "npm install", якщо збірка SCSS вже налаштована
 
+# 2. Налаштування функцій
 [functions]
-  # Папка, де Netlify шукає ваші функції
-  directory = "netlify"
+  # Папка, де Netlify знайде ваш Express-сервер (app.js)
+  directory = "netlify/functions"
+  # Використовуємо esbuild для швидкої збірки
+  node_bundler = "esbuild"
 
+# 3. Правила перенаправлення (Redirects)
+# Усі запити, що починаються з /api, перенаправляємо на Serverless Function
+# Це те, що змусить /api/login працювати.
 [[redirects]]
-  # Перенаправлення, яке направляє всі запити /api/ до нашої функції
   from = "/api/*"
-  to = "/.netlify/functions/server/:splat"
+  to = "/.netlify/functions/app/:splat" # 'app' відповідає назві файлу app.js
   status = 200
-  force = true
