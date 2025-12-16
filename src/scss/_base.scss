@@ -1,15 +1,35 @@
-* { box-sizing: border-box; }
+/* Файл: src/scss/_base.scss - Виправлено помилку "Undefined variable" */
+
+// 1. ІМПОРТ: Підключаємо модуль зі змінними
+@use 'variables'; 
+
+// ===================================
+// BASE STYLES
+// ===================================
+
+* { 
+    box-sizing: border-box; 
+}
 
 body {
     margin: 0;
     padding: 0;
-    font-family: $font-stack;
-    background-color: $bg-dark;
-    color: $text-light;
+    // ЗМІНА: Викликаємо змінну через префікс модуля 'variables'
+    font-family: variables.$font-stack; 
+    background-color: variables.$bg-dark; // Використовуємо змінну через префікс
+    color: variables.$text-light;         // Використовуємо змінну через префікс
 }
 
-a { text-decoration: none; color: inherit; }
-ul { list-style: none; padding: 0; margin: 0; }
+a { 
+    text-decoration: none; 
+    color: inherit; 
+}
+
+ul { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0; 
+}
 
 .container {
     max-width: 1200px;

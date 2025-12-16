@@ -1,5 +1,11 @@
+/* Файл: src/scss/_header.scss - Виправлено помилку "Undefined variable" */
+
+// 1. ІМПОРТ: Підключаємо модуль зі змінними
+@use 'variables'; 
+
 .header {
-    background-color: $bg-light; // Використовуємо бежевий фон
+    // ЗМІНА 1: Викликаємо змінну через префікс модуля 'variables'
+    background-color: variables.$bg-light; 
     padding: 20px 0;
     width: 100%;
     
@@ -16,19 +22,20 @@
 
     // --- Логотип ---
     &__logo {
-        display: flex;         // Щоб вирівняти по центру
+        display: flex; 
         align-items: center;
         text-decoration: none;
         
         // Стилі для самої картинки
         img {
-            height: 70px;      // Висота логотипу на мобільному
-            width: auto;       // Ширина підлаштується автоматично
+            height: 70px; 
+            width: auto; 
             display: block;
             object-fit: contain;
 
             // На комп'ютерах (планшетах) робимо логотип трохи більшим
-            @media (min-width: $breakpoint-md) {
+            // ЗМІНА 2: Використовуємо змінну через префікс
+            @media (min-width: variables.$breakpoint-md) {
                 height: 100px; 
             }
         }
@@ -42,7 +49,8 @@
         right: -100%;
         width: 50%;
         height: 100vh;
-        background-color: $bg-light;
+        // ЗМІНА 3: Викликаємо змінну через префікс
+        background-color: variables.$bg-light; 
         z-index: 1000;
         display: flex;
         flex-direction: column;
@@ -55,7 +63,8 @@
         }
 
         // Стилі для десктопу (звичайний рядок)
-        @media (min-width: $breakpoint-md) {
+        // ЗМІНА 4: Використовуємо змінну через префікс
+        @media (min-width: variables.$breakpoint-md) {
             position: static;
             width: auto;
             height: auto;
@@ -73,7 +82,8 @@
         align-items: center;
         list-style: none;
 
-        @media (min-width: $breakpoint-md) {
+        // ЗМІНА 5: Використовуємо змінну через префікс
+        @media (min-width: variables.$breakpoint-md) {
             flex-direction: row;
             gap: 40px;
         }
@@ -86,7 +96,8 @@
         text-decoration: none;
         transition: opacity 0.3s;
 
-        @media (min-width: $breakpoint-md) {
+        // ЗМІНА 6: Використовуємо змінну через префікс
+        @media (min-width: variables.$breakpoint-md) {
             font-size: 16px;
         }
 
@@ -118,9 +129,8 @@
         height: 20px;
         position: relative;
         cursor: pointer;
-        z-index: 1001; // Має бути вище за меню, щоб на нього можна було натиснути
+        z-index: 1001; 
 
-        // ВАЖЛИВО: Якщо меню відкрите (є клас active), ховаємо бургер
         &.active {
             display: none;
         }
@@ -138,8 +148,9 @@
         span { top: 50%; transform: translateY(-50%); }
         &::after { bottom: 0; }
 
-        @media (min-width: $breakpoint-md) {
-            display: none; // На десктопі бургер не потрібен
+        // ЗМІНА 7: Використовуємо змінну через префікс
+        @media (min-width: variables.$breakpoint-md) {
+            display: none; 
         }
     }
     // --- Хрестик закриття ---
@@ -163,7 +174,8 @@
         }
         &::after { transform: rotate(-45deg); }
 
-        @media (min-width: $breakpoint-md) {
+        // ЗМІНА 8: Використовуємо змінну через префікс
+        @media (min-width: variables.$breakpoint-md) {
             display: none;
         }
     }

@@ -1,13 +1,18 @@
 // scss/sections/_modal.scss
 
+// 1. ІМПОРТ: Підключаємо модуль зі змінними
+@use 'variables';
+// 2. ІМПОРТ: Підключаємо модуль кольорів Sass (для color.adjust)
+@use 'sass:color'; 
+
 .modal-login {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2000; // Вище за хедер
-    display: none; // Приховано за замовчуванням
+    z-index: 2000;
+    display: none; 
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -28,18 +33,20 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba($bg-dark, 0.8); // Темно-коричневий напівпрозорий
+        // ЗМІНА 1: Викликаємо змінну через префікс
+        background-color: rgba(variables.$bg-dark, 0.8); 
         cursor: pointer;
     }
 
     // Саме біле/бежеве віконце
     &__box {
         position: relative;
-        background-color: $bg-light; // Бежевий фон
+        // ЗМІНА 2: Викликаємо змінну через префікс
+        background-color: variables.$bg-light; 
         padding: 40px 30px;
         border-radius: 20px;
         width: 100%;
-        max-width: 450px; // Обмеження ширини
+        max-width: 450px;
         text-align: center;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         transform: translateY(20px);
@@ -61,7 +68,7 @@
     &__form {
         display: flex;
         flex-direction: column;
-        gap: 15px; // Відстань між полями
+        gap: 15px; 
     }
 
     // Хрестик закриття
@@ -77,15 +84,17 @@
         font-weight: 300;
 
         &:hover {
-            transform: scale(1.1); // Трохи збільшується
+            transform: scale(1.1);
             color: #555;
         }
     }
 
     // --- СТИЛІ ДЛЯ ПОЛІВ ВВОДУ (INPUT) ---
     &__input {
-        background-color: $bg-dark; // Темно-коричневий фон
-        color: $text-light;         // Світлий текст
+        // ЗМІНА 3: Викликаємо змінну через префікс
+        background-color: variables.$bg-dark; 
+        // ЗМІНА 4: Викликаємо змінну через префікс
+        color: variables.$text-light; 
         border: 2px solid transparent; 
         padding: 15px 20px;
         border-radius: 10px;
@@ -98,13 +107,15 @@
 
         // Колір тексту-підказки (Placeholder)
         &::placeholder {
-            color: rgba($text-light, 0.6); // Напівпрозорий світлий
+            // ЗМІНА 5: Викликаємо змінну через префікс
+            color: rgba(variables.$text-light, 0.6); 
         }
 
         // При кліку на поле (фокус)
         &:focus {
-            background-color: lighten($bg-dark, 5%); // Трохи світлішає
-            border-color: #000; // Чорна рамка
+            // ЗМІНА 6: Викликаємо змінну через префікс
+            background-color: color.adjust(variables.$bg-dark, $lightness: 5%); 
+            border-color: #000;
         }
     }
 
@@ -117,8 +128,9 @@
 
     // --- КНОПКА РЕЄСТРАЦІЇ ---
     &__reg-btn {
-        background-color: #000; // Чорний фон
-        color: $white;          // Білий текст
+        background-color: #000; 
+        // ЗМІНА 7: Викликаємо змінну через префікс
+        color: variables.$white; 
         border: none;
         padding: 15px;
         border-radius: 10px;
@@ -129,14 +141,15 @@
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: lighten(#000, 20%); // Світлішає при наведенні
+            background-color: color.adjust(#000, $lightness: 20%); 
         }
     }
 
     // Кнопка "Увійти" (основна дія)
     &__submit-btn {
-        background-color: #000;  // Чорний фон
-        color: $white;           // Білий текст
+        background-color: #000; 
+        // ЗМІНА 8: Викликаємо змінну через префікс
+        color: variables.$white; 
         border: none;
         padding: 15px;
         border-radius: 10px;
@@ -144,11 +157,11 @@
         font-weight: 700;
         cursor: pointer;
         width: 100%;
-        margin-top: 10px;        // Відступ від пароля
+        margin-top: 10px; 
         transition: background-color 0.2s;
 
         &:hover {
-            background-color: lighten(#000, 20%); // Трохи світліша при наведенні
+            background-color: color.adjust(#000, $lightness: 20%); 
         }
     }
 }

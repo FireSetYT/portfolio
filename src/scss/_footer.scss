@@ -1,6 +1,13 @@
+/* Файл: src/scss/_footer.scss - Виправлено помилку "Undefined variable" */
+
+// 1. ІМПОРТ: Підключаємо модуль зі змінними
+@use 'variables'; 
+
 footer {
-    background-color: $bg-light;
-    color: $text-dark;
+    // ЗМІНА 1: Викликаємо змінну через префікс
+    background-color: variables.$bg-light;
+    // ЗМІНА 2: Викликаємо змінну через префікс
+    color: variables.$text-dark;
     padding: 40px 0;
     font-size: 12px;
 

@@ -1,10 +1,15 @@
+/* Файл: src/scss/_books.scss */
+
+// 1. ІМПОРТ: Підключаємо модуль зі змінними
+@use 'variables'; 
+
 .books {
-    background-color: $bg-dark; // Темно-коричневий фон (#4C3837)
+    background-color: variables.$bg-dark; // Темно-коричневий фон
     padding: 40px 0 80px;
-    min-height: 100vh; // Щоб фон був на весь екран
+    min-height: 100vh; 
 
     &__title {
-        color: $text-light; // Бежевий текст
+        color: variables.$text-light; // Бежевий текст
         text-align: center;
         font-size: 32px;
         margin-bottom: 40px;
@@ -14,17 +19,14 @@
     &__grid {
         display: grid;
         gap: 30px;
-        justify-items: center; // Центруємо картки в клітинках
+        justify-items: center;
 
-        // Мобільний (1 колонка) - за замовчуванням
         grid-template-columns: 1fr;
 
-        // Планшет (2 колонки)
         @media (min-width: 600px) {
             grid-template-columns: repeat(2, 1fr);
         }
 
-        // Десктоп (3 колонки)
         @media (min-width: 992px) {
             grid-template-columns: repeat(3, 1fr);
         }
@@ -36,12 +38,12 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 350px; // Обмеження ширини картки
+    max-width: 350px;
 
     &__img-wrap {
         width: 100%;
         margin-bottom: 15px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.3); // Тінь як на фото
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         
         img {
             width: 100%;
@@ -52,8 +54,8 @@
     }
 
     &__btn {
-        background-color: $bg-light; // Бежевий фон кнопки
-        color: #000;                 // Чорний текст
+        background-color: variables.$bg-light; // Бежевий фон кнопки
+        color: #000; 
         text-decoration: none;
         padding: 12px 20px;
         border-radius: 5px;

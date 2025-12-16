@@ -1,3 +1,8 @@
+/* Файл: src/scss/_about.scss - Виправлено помилку "Undefined variable" */
+
+// 1. ІМПОРТ: Підключаємо модуль зі змінними
+@use 'variables'; 
+
 .about {
     padding: 40px 0 80px 0;
 
@@ -6,7 +11,8 @@
         flex-direction: column;
         gap: 40px;
 
-        @media (min-width: 992px) {
+        // ЗМІНА 1: Викликаємо змінну через префікс
+        @media (min-width: variables.$breakpoint-lg) {
             flex-direction: row;
             align-items: flex-start;
         }
@@ -23,8 +29,10 @@
 
     .btn-ask {
         display: inline-block;
-        background-color: $bg-light;
-        color: $text-dark;
+        // ЗМІНА 2: Викликаємо змінну через префікс
+        background-color: variables.$bg-light;
+        // ЗМІНА 3: Викликаємо змінну через префікс
+        color: variables.$text-dark;
         padding: 10px 20px;
         border-radius: 5px;
         font-size: 14px;

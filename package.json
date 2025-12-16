@@ -1,47 +1,32 @@
 {
-  "name": "started-vite-template",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "your-netlify-mongo-project",
+  "version": "1.0.0",
+  "description": "API powered by Netlify Functions and MongoDB Atlas",
+  "main": "app.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "browserslist": [
-    "cover 99.5%"
-  ],
-  "devDependencies": {
-    "autoprefixer": "^10.4.4",
-    "fast-glob": "^3.3.1",
-    "imagemin": "^8.0.1",
-    "imagemin-webp": "^8.0.0",
-    "postcss-sort-media-queries": "^5.2.0",
-    "sass": "^1.94.2",
-    "sharp": "^0.32.6",
-    "svgo": "^3.0.2",
-    "vite": "^4.4.5",
-    "vite-plugin-image-optimizer": "^1.1.7"
+    "start": "node app.js",
+    "sass:build": "sass src/scss:public/css",
+    "sass:watch": "sass --watch src/scss:public/css",
+    "build": "npm run sass:build",
+    "dev": "npm run sass:watch"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "faunadb": "^4.8.2",
-    "mongoose": "^9.0.1",
-    "serverless-http": "^4.0.0",
-    "swiper": "^11.1.14"
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "mongoose": "^8.4.1",
+    "serverless-http": "^3.2.0"
   },
-  "description": "",
-  "main": "vite.config.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/FireSetYT/portfolio.git"
+  "devDependencies": {
+    "sass": "^1.77.4"
   },
-  "keywords": [],
+  "keywords": [
+    "netlify",
+    "serverless",
+    "mongodb",
+    "express",
+    "mongoose"
+  ],
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/FireSetYT/portfolio/issues"
-  },
-  "homepage": "https://github.com/FireSetYT/portfolio#readme"
+  "license": "ISC"
 }
