@@ -1,21 +1,18 @@
 /* Файл: public/js/main.js - Повна робоча версія */
 
-// ЗМІНА 1: Використовуємо відносний шлях, щоб коректно працювати локально та на Netlify.
-const API_BASE = '/api'; 
+const API_BASE = '/api'; // Використовуємо префікс /api для Netlify Functions
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ЗМІННІ (Перевірте, чи ці ID збігаються з вашим HTML!) ---
+    // --- ЗМІННІ ---
     const burger = document.getElementById('burgerBtn');
     const nav = document.getElementById('navMenu');
     const closeNavBtn = document.getElementById('closeBtn');
     
-    // Кнопки в Header
     const headerLoginBtn = document.getElementById('loginBtn');
     const headerLogoutBtn = document.getElementById('logoutBtn');
     const headerAdminBtn = document.getElementById('adminBtn');
 
-    // Модальні вікна
     const loginModal = document.getElementById('loginModal');
     const regModal = document.getElementById('regModal');
     const askModal = document.getElementById('askModal');
@@ -24,42 +21,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ФУНКЦІЇ ---
     const openModal = (modal) => {
-        // Закриваємо всі модальні вікна перед відкриттям нового
         document.querySelectorAll('.modal-login').forEach(m => m.classList.remove('active'));
         if(modal) modal.classList.add('active');
     };
     
     const closeModal = () => {
-        // Закриваємо всі модальні вікна
         document.querySelectorAll('.modal-login').forEach(m => m.classList.remove('active'));
     };
 
-    // --- ЛОГІКА АВТОРИЗАЦІЇ ---
     const checkAuth = () => {
         const role = localStorage.getItem('role');
         const username = localStorage.getItem('username');
         
         if (role) {
-            // КОРИСТУВАЧ УВІЙШОВ
             if(headerLoginBtn) headerLoginBtn.style.display = 'none';
             if(headerLogoutBtn) {
                 headerLogoutBtn.style.display = 'inline-block';
                 headerLogoutBtn.innerText = `Вихід (${username || role})`;
             }
-            // ЛОГІКА АДМІНА: відображаємо, якщо роль = 'admin'
             if(role === 'admin' && headerAdminBtn) headerAdminBtn.style.display = 'inline-block';
         } else {
-            // КОРИСТУВАЧ НЕ УВІЙШОВ
             if(headerLoginBtn) headerLoginBtn.style.display = 'inline-block';
             if(headerLogoutBtn) headerLogoutBtn.style.display = 'none';
             if(headerAdminBtn) headerAdminBtn.style.display = 'none';
         }
     };
 
-    // --- ЗАВАНТАЖЕННЯ НОВИН ---
     const loadNews = async () => {
         const container = document.getElementById('newsFeed');
-        if (!container) return; // Не вантажимо, якщо ми не на сторінці news.html
+        if (!container) return;
 
         try {
             const res = await fetch(`${API_BASE}/news`); 
@@ -74,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = news.map(item => {
                 const itemId = item._id; 
 
-                // Рендеринг коментарів
                 const commentsHTML = (item.comments || []).map(c => `
                     <div style="background: #f9f9f9; padding: 10px; margin-bottom: 5px; border-radius: 5px; font-size: 14px; color: #000;">
                         <strong style="color: ${c.author === 'Адміністратор' ? '#e74c3c' : '#2980b9'};">
@@ -85,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `).join('');
 
-                // Поле вводу коментаря
                 let inputArea = '';
                 if (role) {
                     inputArea = `
@@ -116,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }).join('');
 
-            // Прив'язка обробників коментарів
             document.querySelectorAll('.send-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const newsId = e.target.getAttribute('data-id'); 
@@ -140,24 +127,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         alert(json.message || 'Помилка додавання коментаря.');
                     }
-                    loadNews(); // Оновлюємо стрічку новин
+                    loadNews(); 
                 });
             });
 
-            // Прив'язка обробників "Увійдіть"
             document.querySelectorAll('.login-trigger').forEach(l => l.addEventListener('click', () => openModal(loginModal)));
 
         } catch (e) {
             console.error(e);
-            container.innerHTML = '<p style="color:red">Помилка завантаження новин. Перевірте консоль Express.</p>';
+            container.innerHTML = '<p style="color:red">Помилка завантаження новин. Перевірте консоль Netlify Functions.</p>';
         }
     };
 
     // --- ОСНОВНА ЛОГІКА ЗАПУСКУ ---
     checkAuth();
-    loadNews(); // Запускаємо завантаження новин, якщо ми на сторінці з контейнером 'newsFeed'
-
-    // --- ОБРОБНИКИ ДІЙ ---
+    loadNews(); 
 
     // Навігація
     if(burger) burger.addEventListener('click', () => { nav.classList.add('active'); burger.classList.add('active'); });
@@ -195,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 else { alert(json.message || 'Помилка'); }
             } catch(e) { 
                 console.error(e); 
-                alert('Сервер не відповідає. Перевірте консоль Express.'); 
+                alert('Сервер не відповідає. Перевірте Netlify Functions Logs.'); 
             }
         });
     };
@@ -229,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 
         'Запитання надіслано!', 
         () => { 
-            // Очищаємо поля та закриваємо
             document.getElementById('askText').value=''; 
             document.getElementById('askName').value=''; 
             document.getElementById('askContact').value=''; 
@@ -238,22 +221,17 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     // --- ЗАКРИТТЯ ТА ПЕРЕХОДИ МІЖ МОДАЛЬНИМИ ВІКНАМИ ---
-    
-    // Універсальне закриття
     document.querySelectorAll('.modal-login__close, .modal-login__overlay').forEach(el => el.addEventListener('click', closeModal));
     
-    // Перехід Реєстрація -> Вхід
     const toReg = document.querySelector('.modal-login__reg-btn'); 
     if(toReg && toReg.id !== 'submitReg') toReg.addEventListener('click', (e) => { 
         e.preventDefault(); 
         openModal(regModal); 
     });
     
-    // Перехід з попередження на Вхід
     const toLogin = document.getElementById('goToLoginFromWarning'); 
     if(toLogin) toLogin.addEventListener('click', () => openModal(loginModal));
     
-    // Перехід з попередження на Реєстрацію
     const toRegFromWarning = document.getElementById('goToRegFromWarning'); 
     if(toRegFromWarning) toRegFromWarning.addEventListener('click', () => openModal(regModal));
 });

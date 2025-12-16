@@ -1,25 +1,23 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path');
-require('dotenv').config(); // Обов'язково встановіть npm install dotenv
+const serverless = require('serverless-http'); // <-- ДОДАНО для Netlify
+require('dotenv').config(); 
 
 // --- 1. Ініціалізація та конфігурація ---
 const app = express();
-const PORT = process.env.PORT || 3000;
+// PORT не використовується в serverless, але можна залишити для локальних тестів, якщо потрібно
+// const PORT = process.env.PORT || 3000; 
 
 // Middleware (проміжне ПЗ)
 app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Для обробки JSON-тіл запитів
-app.use(express.urlencoded({ extended: true })); // Для обробки даних форм
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-// --- 2. Налаштування статичних файлів ---
-// Обслуговування файлів із папки 'public' (HTML, CSS, JS, зображення)
-app.use(express.static(path.join(__dirname, 'public')));
+console.log('Скрипт app.js розпочав виконання (Serverless).'); 
 
-console.log('Скрипт app.js розпочав виконання.'); 
 
-// --- 3. СХЕМИ ТА МОДЕЛІ ---
+// --- 2. СХЕМИ ТА МОДЕЛІ ---
 const CommentSchema = new mongoose.Schema({
     author: String,
     text: String,
@@ -51,7 +49,39 @@ const QuestionSchema = new mongoose.Schema({
 const News = mongoose.models.News || mongoose.model('News', NewsSchema);
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const Question = mongoose.models.Question || mongoose.model('Question', QuestionSchema);
-// ------------------------------------------------
+
+
+// --- 3. ЛОГІКА ПІДКЛЮЧЕННЯ (для Serverless) ---
+const connectDB = async () => {
+    // Якщо вже підключено (для гарячого старту), не підключатися повторно 
+    // Це зменшує затримку Netlify Functions
+    if (mongoose.connections[0].readyState) return; 
+    
+    const mongoUri = process.env.MONGO_URI;
+
+    if (!mongoUri) {
+        console.error('❌ ПОМИЛКА: MONGO_URI не знайдено у змінних оточення Netlify.');
+        throw new Error("MONGO_URI is missing.");
+    }
+    
+    try {
+        await mongoose.connect(mongoUri); 
+        console.log("✅ MongoDB підключено.");
+    } catch (e) {
+        console.error("❌ Помилка підключення MongoDB:", e.message);
+        throw e;
+    }
+};
+
+// Middleware: Підключаємося перед кожним маршрутом
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (e) {
+        res.status(503).json({ success: false, message: "Server configuration error (DB connection)." });
+    }
+});
 
 
 // ===========================
@@ -64,7 +94,6 @@ app.get('/api/news', async (req, res) => {
         const news = await News.find({}).lean(); 
         res.json(news);
     } catch (e) {
-        console.error('Помилка в /api/news:', e);
         res.status(500).json([]);
     }
 });
@@ -77,7 +106,6 @@ app.post('/api/news', async (req, res) => {
         await newPost.save();
         res.json({ success: true, message: "Новина успішно додана" });
     } catch (e) {
-        console.error('Помилка в /api/news POST:', e);
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 });
@@ -95,7 +123,6 @@ app.post('/api/news/comment', async (req, res) => {
         if (!updatedNews) return res.json({ success: false, message: "Новину не знайдено" });
         res.json({ success: true, message: "Коментар додано" });
     } catch (e) {
-        console.error('Помилка в /api/news/comment:', e);
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 });
@@ -108,7 +135,6 @@ app.post('/api/ask', async (req, res) => {
         await newQuestion.save();
         res.json({ success: true, message: "Запитання успішно надіслано" });
     } catch (e) {
-        console.error('Помилка в /api/ask:', e);
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 });
@@ -124,7 +150,6 @@ app.post('/api/register', async (req, res) => {
         await newUser.save();
         res.json({ success: true, message: "Користувач успішно зареєстрований" });
     } catch (e) {
-        console.error('Помилка в /api/register:', e);
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 });
@@ -136,45 +161,15 @@ app.post('/api/login', async (req, res) => {
         const user = await User.findOne({ login, pass: password });
         
         if (user) {
-            // Передаємо role та login назад до фронтенду
             res.json({ success: true, role: user.role, login: user.login }); 
         } else {
             res.json({ success: false, message: "Невірні логін або пароль" });
         }
     } catch (e) {
-        console.error('Помилка в /api/login:', e);
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 });
 
 
-// --- 5. Логіка підключення до MongoDB та запуск сервера ---
-const startServer = async () => {
-    const mongoUri = process.env.MONGO_URI;
-
-    if (!mongoUri) {
-        console.error('❌ ПОМИЛКА: MONGO_URI не знайдено у змінних оточення.');
-        console.error('Переконайтеся, що ви створили файл .env у корені проекту.');
-        return;
-    }
-
-    try {
-        // Підключення до бази даних
-        await mongoose.connect(mongoUri); 
-        console.log('✅ MongoDB підключено.'); 
-
-        // Запуск Express-сервера
-        app.listen(PORT, () => {
-            console.log(`🚀 Сервер Express запущено на порту ${PORT}`);
-            console.log(`🔗 Локальна адреса: http://localhost:${PORT}/index.html`);
-        });
-
-    } catch (err) {
-        // Обробка помилок підключення
-        console.error('❌ ПОМИЛКА ПІДКЛЮЧЕННЯ ДО БД ТА ЗАПУСКУ СЕРВЕРА:');
-        console.error(err.message);
-        process.exit(1);
-    }
-};
-
-startServer();
+// --- 5. ЕКСПОРТ ДЛЯ SERVERLESS-HTTP (Заміна app.listen) ---
+module.exports.handler = serverless(app);
