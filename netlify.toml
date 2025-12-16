@@ -1,0 +1,16 @@
+[build]
+  # Каталог, де лежать ваші статичні файли (HTML, CSS, JS)
+  publish = "public" 
+  # Команда збірки (якщо у вас React/Vue/тощо)
+  command = "npm run build" 
+
+[functions]
+  # Папка, де Netlify шукає ваші функції
+  directory = "netlify"
+
+[[redirects]]
+  # Перенаправлення, яке направляє всі запити /api/ до нашої функції
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
+  force = true

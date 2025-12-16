@@ -26,6 +26,9 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.2.1",
+    "faunadb": "^4.8.2",
+    "mongoose": "^9.0.1",
+    "serverless-http": "^4.0.0",
     "swiper": "^11.1.14"
   },
   "description": "",
