@@ -1,21 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const serverless = require('serverless-http'); // <-- ДОДАНО для Netlify
+const serverless = require('serverless-http');
 require('dotenv').config(); 
 
-// --- 1. Ініціалізація та конфігурація ---
 const app = express();
-// PORT не використовується в serverless, але можна залишити для локальних тестів, якщо потрібно
-// const PORT = process.env.PORT || 3000; 
 
-// Middleware (проміжне ПЗ)
+// --- 1. ПЕРЕГЛЯД MIDDLEWARE ---
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-console.log('Скрипт app.js розпочав виконання (Serverless).'); 
-
+app.use(express.json({ limit: '10mb' })); // Дозволяє передавати великі зображення Base64
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // --- 2. СХЕМИ ТА МОДЕЛІ ---
 const CommentSchema = new mongoose.Schema({
@@ -27,7 +21,7 @@ const CommentSchema = new mongoose.Schema({
 const NewsSchema = new mongoose.Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
-    image: String,
+    image: { type: String, default: "" }, // Виправлено для публікації без фото
     date: { type: String, default: () => new Date().toLocaleDateString('uk-UA') },
     comments: [CommentSchema]
 });
@@ -46,130 +40,130 @@ const QuestionSchema = new mongoose.Schema({
     date: { type: String, default: () => new Date().toLocaleString('uk-UA') }
 });
 
+// Перевірка існуючих моделей для уникнення помилок при гарячому перезавантаженні
 const News = mongoose.models.News || mongoose.model('News', NewsSchema);
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const Question = mongoose.models.Question || mongoose.model('Question', QuestionSchema);
 
-
-// --- 3. ЛОГІКА ПІДКЛЮЧЕННЯ (для Serverless) ---
+// --- 3. ПІДКЛЮЧЕННЯ ДО БД (SERVERLESS) ---
 const connectDB = async () => {
-    // Якщо вже підключено (для гарячого старту), не підключатися повторно 
-    // Це зменшує затримку Netlify Functions
     if (mongoose.connections[0].readyState) return; 
     
     const mongoUri = process.env.MONGO_URI;
-
     if (!mongoUri) {
-        console.error('❌ ПОМИЛКА: MONGO_URI не знайдено у змінних оточення Netlify.');
-        throw new Error("MONGO_URI is missing.");
+        throw new Error("MONGO_URI is missing in environment variables.");
     }
-    
+
     try {
-        await mongoose.connect(mongoUri); 
+        await mongoose.connect(mongoUri);
         console.log("✅ MongoDB підключено.");
     } catch (e) {
-        console.error("❌ Помилка підключення MongoDB:", e.message);
+        console.error("❌ Помилка підключення до БД:", e.message);
         throw e;
     }
 };
 
-// Middleware: Підключаємося перед кожним маршрутом
+// Middleware для підключення до БД перед кожним маршрутом
 app.use(async (req, res, next) => {
     try {
         await connectDB();
         next();
     } catch (e) {
-        res.status(503).json({ success: false, message: "Server configuration error (DB connection)." });
+        res.status(503).json({ success: false, message: "Сервіс тимчасово недоступний (DB)" });
     }
 });
 
+// --- 4. API МАРШРУТИ ---
 
-// ===========================
-//       4. API МАРШРУТИ (/api/...)
-// ===========================
-
-// 1. ОТРИМАННЯ НОВИН (GET /api/news)
+// Отримання всіх новин (нові зверху)
 app.get('/api/news', async (req, res) => {
     try {
-        const news = await News.find({}).lean(); 
+        const news = await News.find({}).sort({ _id: -1 }).lean();
         res.json(news);
     } catch (e) {
         res.status(500).json([]);
     }
 });
 
-// 2. ДОДАВАННЯ НОВИНИ (POST /api/news)
+// Додавання новини з адмін-панелі
 app.post('/api/news', async (req, res) => {
     try {
         const { title, content, image } = req.body;
-        const newPost = new News({ title, content, image });
+        if (!title || !content) {
+            return res.status(400).json({ success: false, message: "Заголовок та текст обов'язкові" });
+        }
+        
+        const newPost = new News({ 
+            title, 
+            content, 
+            image: image || "" // Якщо фото не вибрано, зберігаємо порожній рядок
+        });
+        
         await newPost.save();
-        res.json({ success: true, message: "Новина успішно додана" });
+        res.json({ success: true, message: "Новина успішно додана!" });
     } catch (e) {
         res.status(500).json({ success: false, message: "Помилка сервера" });
     }
 });
 
-// 3. ДОДАВАННЯ КОМЕНТАРЯ (POST /api/news/comment)
+// Додавання коментаря
 app.post('/api/news/comment', async (req, res) => {
     try {
         const { newsId, author, text } = req.body;
-        const updatedNews = await News.findByIdAndUpdate(
+        const updated = await News.findByIdAndUpdate(
             newsId,
             { $push: { comments: { author, text } } },
             { new: true }
         );
-
-        if (!updatedNews) return res.json({ success: false, message: "Новину не знайдено" });
+        if (!updated) return res.status(404).json({ success: false, message: "Новину не знайдено" });
         res.json({ success: true, message: "Коментар додано" });
     } catch (e) {
-        res.status(500).json({ success: false, message: "Помилка сервера" });
+        res.status(500).json({ success: false });
     }
 });
 
-// 4. ЗАПИТАННЯ (POST /api/ask)
+// Форма зворотного зв'язку
 app.post('/api/ask', async (req, res) => {
     try {
         const { name, contact, question } = req.body;
-        const newQuestion = new Question({ name, contact, question });
-        await newQuestion.save();
-        res.json({ success: true, message: "Запитання успішно надіслано" });
+        const newQ = new Question({ name, contact, question });
+        await newQ.save();
+        res.json({ success: true, message: "Запитання надіслано" });
     } catch (e) {
-        res.status(500).json({ success: false, message: "Помилка сервера" });
+        res.status(500).json({ success: false });
     }
 });
 
-// 5. АВТОРИЗАЦІЯ (Реєстрація - POST /api/register)
-app.post('/api/register', async (req, res) => {
-    try {
-        const { login, password, email } = req.body;
-        const existingUser = await User.findOne({ login });
-        if (existingUser) return res.json({ success: false, message: "Користувач з цим логіном вже існує" });
-        
-        const newUser = new User({ login, pass: password, email });
-        await newUser.save();
-        res.json({ success: true, message: "Користувач успішно зареєстрований" });
-    } catch (e) {
-        res.status(500).json({ success: false, message: "Помилка сервера" });
-    }
-});
-
-// 6. АВТОРИЗАЦІЯ (Вхід - POST /api/login)
+// Вхід користувача/адміна
 app.post('/api/login', async (req, res) => {
     try {
         const { login, password } = req.body;
         const user = await User.findOne({ login, pass: password });
         
         if (user) {
-            res.json({ success: true, role: user.role, login: user.login }); 
+            res.json({ success: true, role: user.role, login: user.login });
         } else {
-            res.json({ success: false, message: "Невірні логін або пароль" });
+            res.json({ success: false, message: "Невірний логін або пароль" });
         }
     } catch (e) {
-        res.status(500).json({ success: false, message: "Помилка сервера" });
+        res.status(500).json({ success: false });
     }
 });
 
+// Реєстрація
+app.post('/api/register', async (req, res) => {
+    try {
+        const { login, password, email } = req.body;
+        const exists = await User.findOne({ login });
+        if (exists) return res.json({ success: false, message: "Користувач вже існує" });
+        
+        const newUser = new User({ login, pass: password, email });
+        await newUser.save();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
+});
 
-// --- 5. ЕКСПОРТ ДЛЯ SERVERLESS-HTTP (Заміна app.listen) ---
+// --- 5. ЕКСПОРТ ДЛЯ NETLIFY FUNCTIONS ---
 module.exports.handler = serverless(app);
