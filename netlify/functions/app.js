@@ -8,8 +8,9 @@ const app = express();
 
 // --- 1. ПЕРЕГЛЯД MIDDLEWARE ---
 app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Дозволяє передавати великі зображення Base64
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Збільшено ліміти для обробки великих фото в форматі Base64
+app.use(express.json({ limit: '50mb' })); 
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // --- 2. СХЕМИ ТА МОДЕЛІ ---
 const CommentSchema = new mongoose.Schema({
@@ -21,7 +22,7 @@ const CommentSchema = new mongoose.Schema({
 const NewsSchema = new mongoose.Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
-    image: { type: String, default: "" }, // Виправлено для публікації без фото
+    image: { type: String, default: "" }, 
     date: { type: String, default: () => new Date().toLocaleDateString('uk-UA') },
     comments: [CommentSchema]
 });
@@ -40,42 +41,42 @@ const QuestionSchema = new mongoose.Schema({
     date: { type: String, default: () => new Date().toLocaleString('uk-UA') }
 });
 
-// Перевірка існуючих моделей для уникнення помилок при гарячому перезавантаженні
 const News = mongoose.models.News || mongoose.model('News', NewsSchema);
 const User = mongoose.models.User || mongoose.model('User', UserSchema);
 const Question = mongoose.models.Question || mongoose.model('Question', QuestionSchema);
 
 // --- 3. ПІДКЛЮЧЕННЯ ДО БД (SERVERLESS) ---
 const connectDB = async () => {
+    // Важливо для Serverless: перевіряємо, чи є вже активне з'єднання
     if (mongoose.connections[0].readyState) return; 
     
     const mongoUri = process.env.MONGO_URI;
-    if (!mongoUri) {
-        throw new Error("MONGO_URI is missing in environment variables.");
-    }
+    if (!mongoUri) throw new Error("MONGO_URI is missing");
 
     try {
-        await mongoose.connect(mongoUri);
+        await mongoose.connect(mongoUri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000 // Швидка відмова при помилці з'єднання
+        });
         console.log("✅ MongoDB підключено.");
     } catch (e) {
-        console.error("❌ Помилка підключення до БД:", e.message);
+        console.error("❌ Помилка підключення:", e.message);
         throw e;
     }
 };
 
-// Middleware для підключення до БД перед кожним маршрутом
 app.use(async (req, res, next) => {
     try {
         await connectDB();
         next();
     } catch (e) {
-        res.status(503).json({ success: false, message: "Сервіс тимчасово недоступний (DB)" });
+        res.status(503).json({ success: false, message: "DB Error" });
     }
 });
 
 // --- 4. API МАРШРУТИ ---
 
-// Отримання всіх новин (нові зверху)
 app.get('/api/news', async (req, res) => {
     try {
         const news = await News.find({}).sort({ _id: -1 }).lean();
@@ -85,20 +86,12 @@ app.get('/api/news', async (req, res) => {
     }
 });
 
-// Додавання новини з адмін-панелі
 app.post('/api/news', async (req, res) => {
     try {
         const { title, content, image } = req.body;
-        if (!title || !content) {
-            return res.status(400).json({ success: false, message: "Заголовок та текст обов'язкові" });
-        }
+        if (!title || !content) return res.status(400).json({ success: false, message: "Заповніть поля" });
         
-        const newPost = new News({ 
-            title, 
-            content, 
-            image: image || "" // Якщо фото не вибрано, зберігаємо порожній рядок
-        });
-        
+        const newPost = new News({ title, content, image: image || "" });
         await newPost.save();
         res.json({ success: true, message: "Новина успішно додана!" });
     } catch (e) {
@@ -106,7 +99,6 @@ app.post('/api/news', async (req, res) => {
     }
 });
 
-// Додавання коментаря
 app.post('/api/news/comment', async (req, res) => {
     try {
         const { newsId, author, text } = req.body;
@@ -115,47 +107,43 @@ app.post('/api/news/comment', async (req, res) => {
             { $push: { comments: { author, text } } },
             { new: true }
         );
-        if (!updated) return res.status(404).json({ success: false, message: "Новину не знайдено" });
-        res.json({ success: true, message: "Коментар додано" });
+        if (!updated) return res.status(404).json({ success: false });
+        res.json({ success: true });
     } catch (e) {
         res.status(500).json({ success: false });
     }
 });
 
-// Форма зворотного зв'язку
 app.post('/api/ask', async (req, res) => {
     try {
         const { name, contact, question } = req.body;
         const newQ = new Question({ name, contact, question });
         await newQ.save();
-        res.json({ success: true, message: "Запитання надіслано" });
+        res.json({ success: true });
     } catch (e) {
         res.status(500).json({ success: false });
     }
 });
 
-// Вхід користувача/адміна
 app.post('/api/login', async (req, res) => {
     try {
         const { login, password } = req.body;
         const user = await User.findOne({ login, pass: password });
-        
         if (user) {
             res.json({ success: true, role: user.role, login: user.login });
         } else {
-            res.json({ success: false, message: "Невірний логін або пароль" });
+            res.json({ success: false, message: "Невірні дані" });
         }
     } catch (e) {
         res.status(500).json({ success: false });
     }
 });
 
-// Реєстрація
 app.post('/api/register', async (req, res) => {
     try {
         const { login, password, email } = req.body;
         const exists = await User.findOne({ login });
-        if (exists) return res.json({ success: false, message: "Користувач вже існує" });
+        if (exists) return res.json({ success: false, message: "Логін зайнятий" });
         
         const newUser = new User({ login, pass: password, email });
         await newUser.save();
@@ -165,5 +153,5 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// --- 5. ЕКСПОРТ ДЛЯ NETLIFY FUNCTIONS ---
+// --- 5. ЕКСПОРТ ---
 module.exports.handler = serverless(app);
